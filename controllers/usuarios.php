@@ -1,6 +1,8 @@
 <?php
 // controllers/usuarios.php
 // Controlador para gestionar usuarios (activar/desactivar/eliminar)
+// Revisado 2026-10-29: consultas de "último administrador" con sentencia preparada
+// y filtrando por estado activo.
 require_once __DIR__ . '/../config/bootstrap.php';
 
 // Solo admin puede acceder
@@ -36,7 +38,7 @@ try {
     // ============================================
     if ($accion === 'toggle_estado') {
         $nuevoEstado = $_GET['estado'] ?? '';
-        
+
         // Validar estado
         if (!in_array($nuevoEstado, ['activo', 'inactivo'])) {
             header("Location: ../views/admin_usuarios.php?error=estado_invalido");
@@ -51,12 +53,13 @@ try {
 
         // Si va a desactivar, verificar que no sea el último admin activo
         if ($nuevoEstado === 'inactivo' && $usuario['role'] === 'admin') {
-            $stmtAdmins = $pdo->query("
-                SELECT COUNT(*) FROM usuarios 
-                WHERE role = 'admin' AND estado = 'activo' AND id != {$id}
+            $stmtAdmins = $pdo->prepare("
+                SELECT COUNT(*) FROM usuarios
+                WHERE role = 'admin' AND estado = 'activo' AND id != ?
             ");
+            $stmtAdmins->execute([$id]);
             $adminsActivos = $stmtAdmins->fetchColumn();
-            
+
             if ($adminsActivos == 0) {
                 header("Location: ../views/admin_usuarios.php?error=ultimo_admin");
                 exit();
@@ -81,14 +84,15 @@ try {
             exit();
         }
 
-        // Si es admin, verificar que no sea el último
+        // Si es admin, verificar que no sea el último admin ACTIVO
         if ($usuario['role'] === 'admin') {
-            $stmtAdmins = $pdo->query("
-                SELECT COUNT(*) FROM usuarios 
-                WHERE role = 'admin' AND id != {$id}
+            $stmtAdmins = $pdo->prepare("
+                SELECT COUNT(*) FROM usuarios
+                WHERE role = 'admin' AND estado = 'activo' AND id != ?
             ");
+            $stmtAdmins->execute([$id]);
             $totalAdmins = $stmtAdmins->fetchColumn();
-            
+
             if ($totalAdmins == 0) {
                 header("Location: ../views/admin_usuarios.php?error=ultimo_admin");
                 exit();

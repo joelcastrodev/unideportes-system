@@ -1,3 +1,8 @@
+-- =====================================================================
+-- AVISO: todos los datos de este volcado son FICTICIOS.
+-- Nombres, cedulas, telefonos, correos y direcciones fueron inventados
+-- para probar el sistema. No corresponden a personas ni empresas reales.
+-- =====================================================================
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
@@ -677,11 +682,11 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `name`, `lastname`, `username`, `password`, `email`, `role`, `created_at`) VALUES
-(1, 'Admin', 'Principal', 'admin', '$2y$10$frP94r.LbtDioA81uIV00Or5H0yIr.K7SNSbk1ExRmpvuagcLFDlK', 'admin1@unideportes.com', 'admin', '2026-05-12 00:39:11'),
+(1, 'Admin', 'Principal', 'admin', '$2y$10$.eJXHoOJ9z3FgxduQ00mxOKr1Zym2p6ZRkhxIFDYkZaf1JsXBz3K6', 'admin1@unideportes.com', 'admin', '2026-05-12 00:39:11'),
 (2, 'Joel', 'Castro', 'joel_dev', '$2y$10$COcs9nq1Z1PkNbUYgFQrl.EIYQ3dHUfUTP8NN4DARbAgnJmN0.Kry', 'joel@unideportes.com', 'admin', '2026-05-12 00:39:11'),
 (3, 'Pablo', 'Rios', 'Pablo', '$2y$10$ppDYaZs/kKgLulMaP7kAaeVLD3UaeRFiAVEQq.FSsgWpwz9JGW8NO', 'pablo@unideportes.com', 'vendedor', '2026-05-12 00:39:11'),
-(5, 'Jonathan', 'Suarez', 'JonathanS', '$2y$10$HIqrtN0ijB8X9OlSnDvgn.gHG0oYPrQquYJqnCTZ2P.vTAKGy0c.e', 'jaysuarezap@gmail.com', 'colaborador', '2026-05-12 00:39:11'),
-(8, 'Administrador Dos', 'Central', 'admin_sena', '$2y$10$M9rWvXexamplehashforadminpassworddontchange', 'admin2@unideportes.com', 'admin', '2026-05-26 18:50:40'),
+(5, 'Jonathan', 'Suarez', 'JonathanS', '$2y$10$HIqrtN0ijB8X9OlSnDvgn.gHG0oYPrQquYJqnCTZ2P.vTAKGy0c.e', 'jonathan@unideportes.com', 'colaborador', '2026-05-12 00:39:11'),
+(8, 'Administrador Dos', 'Central', 'admin_sena', '$2y$10$.eJXHoOJ9z3FgxduQ00mxOKr1Zym2p6ZRkhxIFDYkZaf1JsXBz3K6', 'admin2@unideportes.com', 'admin', '2026-05-26 18:50:40'),
 (10, 'Pedro', 'Fernandez', 'pedro', '$2y$10$AFPV41LmhPcc1SstZc4dEu/hsZ36T7Qt5gRviFeR2QYAOwEl6uXAu', 'pedro@unideportes.com', 'colaborador', '2026-08-15 21:47:08');
 
 -- --------------------------------------------------------
