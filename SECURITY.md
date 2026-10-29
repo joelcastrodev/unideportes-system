@@ -21,7 +21,7 @@ No revisado: los 25 controladores restantes, las 35 vistas y los 7 modelos.
 |---|---|---|---|
 | 1 | El código usaba una columna `estado` que no existía en la base: la gestión de estado de usuarios nunca funcionó, y el login no validaba nada | Alta | ✅ Corregido |
 | 2 | Acciones destructivas por `GET` sin token CSRF | Alta | ⏳ Pendiente |
-| 3 | Dos controladores que borran usuarios con reglas distintas | Media | ✅ Corregido |
+| 3 | Dos controladores que borran usuarios con reglas distintas | Media | ⏳ Pendiente |
 | 4 | La conexión imprimía el error de PDO en el navegador | Media | ✅ Corregido |
 | 5 | La validación de "último administrador" no filtraba por estado | Media | ✅ Corregido |
 | 6 | No se renovaba el ID de sesión al iniciar sesión | Media | ✅ Corregido |
@@ -60,13 +60,14 @@ podría ejecutar un borrado sin saberlo (CSRF).
 **Plan:** mover las acciones destructivas a `POST` y validar un token de sesión. Se hará por
 fases, empezando por los borrados, porque afecta formularios de varias vistas.
 
-## 3. Dos controladores para la misma operación
+## 3. Dos controladores para la misma operación (pendiente)
 
-`controllers/delete_user.php` borraba siempre; `controllers/usuarios.php?action=eliminar`
-desactiva si el usuario tiene ventas asociadas. La primera ruta podía dejar historial huérfano.
+`controllers/delete_user.php` borra siempre; `controllers/usuarios.php?action=eliminar`
+desactiva si el usuario tiene ventas asociadas. La primera ruta puede dejar historial huérfano.
 
-**Corregido:** se eliminó `controllers/delete_user.php` y su redirección en
-`views/delete_user.php`. Queda un solo camino, el que protege el historial.
+**Plan:** quedarse con `controllers/usuarios.php`, que es el que protege el historial. Requiere
+actualizar antes los enlaces de `views/admin_usuarios.php` y después eliminar
+`controllers/delete_user.php` y su redirección en `views/delete_user.php`.
 
 ## 4. Error de conexión expuesto
 
