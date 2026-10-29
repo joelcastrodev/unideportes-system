@@ -83,6 +83,12 @@ En phpMyAdmin (`http://localhost/phpmyadmin`):
 
 1. Crear una base de datos llamada `unideportes`
 2. Importar `database/unideportes_db.sql`
+3. Aplicar las migraciones de `database/migrations/` en orden. Si el volcado es anterior al
+   2026-10-29, hace falta la que agrega `usuarios.estado`:
+
+   ```bash
+   php config/migrate_estado_usuario.php
+   ```
 
 **3. Revisar la conexión**
 
@@ -161,15 +167,27 @@ Lo que está implementado y lo que falta, sin adornos:
 Esta sección existe porque un sistema académico que reconoce sus límites es más confiable
 que uno que declara ser perfecto.
 
+## Acceso de demostración
+
+Después de importar el volcado, la cuenta de administrador es:
+
+| Usuario | Contraseña |
+|---|---|
+| `admin` | `demo1234` |
+
+Cámbiala si algún día despliegas esto en un servidor. Las demás cuentas del volcado tienen
+contraseñas de prueba que no se documentan.
+
 ## Datos de ejemplo
 
 El volcado `database/unideportes_db.sql` contiene el esquema completo y datos **ficticios**
-para probar el sistema. No incluye información de clientes reales.
+creados para probar el sistema: nombres, cédulas, teléfonos, correos y direcciones fueron
+inventados y no corresponden a personas ni empresas reales.
 
 ## Contexto del proyecto
 
 Trabajo de formación del programa **Análisis y Desarrollo de Software** del SENA, realizado
-en equipo. El objetivo era diseñar y construir un sistema completo con base de datos, autenticación 
-y reportes, aplicando arquitectura por capas.
+en equipo. El objetivo era diseñar y construir un sistema completo con base de datos,
+autenticación y reportes, aplicando arquitectura por capas.
 
 El proyecto **no fue desplegado**: se validó en entorno local con datos de prueba.
