@@ -1,386 +1,175 @@
-#  Sistema CRUD Unideportes
+# UniDeportes — Sistema de gestión para tienda deportiva
 
-Sistema completo de gestión de usuarios con operaciones CRUD (Crear, Leer, Actualizar, Eliminar) para el control de personal en Unideportes.
+Sistema de gestión para una tienda de artículos deportivos: inventario, ventas directas y
+mayoristas, pedidos con abonos, entregas a domicilio, clientes y reportes.
 
-##  Tabla de Contenidos
+Proyecto formativo del programa **ADSO (SENA)**, desarrollado en equipo y validado con datos
+de prueba. No llegó a producción.
 
-- [Características](#-características)
-- [Tecnologías](#-tecnologías)
-- [Requisitos](#-requisitos)
-- [Instalación](#-instalación)
-- [Configuración](#-configuración)
-- [Estructura del Proyecto](#-estructura-del-proyecto)
-- [Base de Datos](#-base-de-datos)
-- [Funcionalidades CRUD](#-funcionalidades-crud)
-- [Uso del Sistema](#-uso-del-sistema)
-- [Testing](#-testing)
-- [API Endpoints](#-api-endpoints)
-- [Seguridad](#-seguridad)
-- [Contribución](#-contribución)
-- [Licencia](#-licencia)
+![PHP lint](https://github.com/joelcastrodev/unideportes-system/actions/workflows/php-lint.yml/badge.svg)
 
-##  Características
+## Qué resuelve
 
--  **Autenticación segura** con contraseñas hasheadas
--  **Gestión completa de usuarios** (Admin, Colaborador, Vendedor)
--  **Panel administrativo** con métricas en tiempo real
--  **Roles y permisos** basados en usuario
--  **Búsqueda y filtrado** de usuarios
--  **Interfaz responsive** y moderna
--  **Suite de testing** completa
--  **Arquitectura MVC** organizada
+Una tienda deportiva maneja tres cosas a la vez y en papeles distintos: el inventario por
+tallas, las ventas (que no son iguales al detal que al por mayor) y los pedidos que se pagan
+por partes. Este sistema las unifica en una sola aplicación web con roles distintos para
+administrador, colaborador y vendedor.
 
-## 🛠 Tecnologías
+## Módulos
 
-### Backend
-- **PHP 8.0+** - Lenguaje principal
-- **MySQL 8.0+** - Base de datos relacional
-- **MySQLi** - Extensión para conexión a BD
+**Autenticación y roles**
+Login con sesiones PHP y redirección según rol: administrador, colaborador y vendedor, cada
+uno con su propio panel. Incluye recuperación de contraseña y migración automática de
+contraseñas antiguas en texto plano a `password_hash`.
 
-### Frontend
-- **HTML5** - Estructura
-- **CSS3** - Estilos y diseño
-- **JavaScript** - Interactividad
+**Inventario**
+Productos con variantes por talla, control de stock, alertas de mínimo, precios y registro
+de productos nuevos.
 
-### Herramientas
-- **XAMPP** - Entorno de desarrollo
-- **phpMyAdmin** - Gestión de BD
-- **Composer** - Gestión de dependencias (opcional)
+**Ventas**
+Venta directa y venta mayorista, cada una con su flujo de ticket. Cálculo de totales y
+registro de la venta por vendedor.
 
-##  Requisitos
+**Pedidos y abonos**
+Creación de pedidos, pagos parciales (abonos), cambio de estado y seguimiento. Un pedido
+puede quedar pagado por partes sin bloquear la entrega.
 
-### Sistema Operativo
-- Windows 10/11
-- Linux (Ubuntu/Debian)
-- macOS
+**Clientes**
+Registro, edición, historial y búsqueda por AJAX sin recargar la página.
 
-### Software Requerido
-- **XAMPP 8.0+** (Apache + MySQL + PHP)
-- **Navegador web** moderno (Chrome, Firefox, Edge)
-- **Editor de código** (VS Code recomendado)
+**Entregas a domicilio**
+Confirmación de entrega, procesamiento y estados de despacho.
 
-### Requisitos PHP
-- PHP 8.0 o superior
-- Extensión MySQLi habilitada
-- Funciones `password_hash()` y `password_verify()`
+**Reportes**
+Panel con indicadores de ventas y cartera: pedidos pendientes, abonos recientes, productos
+más vendidos y ventas detalladas.
 
-##  Instalación
+**Soporte técnico**
+Tickets de soporte con vista aparte para el vendedor.
 
-### Paso 1: Clonar o Descargar
+## Stack
+
+| Capa | Tecnología |
+|---|---|
+| Backend | PHP 8+ con PDO |
+| Base de datos | MySQL 8 |
+| Vistas | PHP, HTML5, CSS3, JavaScript |
+| Módulo frontend | React + Vite (gestión de productos) |
+| Pruebas E2E | Cypress |
+| CI | GitHub Actions (PHP lint) |
+
+## Requisitos
+
+- XAMPP con PHP 8.0 o superior y MySQL
+- Node.js 18+ (solo para Cypress y el módulo React)
+- Navegador moderno
+
+## Instalación
+
+**1. Clonar en `htdocs` con el nombre exacto de la carpeta**
+
 ```bash
-# Si usas Git
-git clone https://github.com/tu-usuario/crudunideportes.git
-
-# O descarga el ZIP y extráelo en:
-C:\xampp\htdocs\crudunideportes
+cd C:\xampp\htdocs
+git clone https://github.com/joelcastrodev/unideportes-system.git
 ```
 
-### Paso 2: Iniciar XAMPP
-1. Abre el **Panel de Control de XAMPP**
-2. Inicia los módulos:
-   -  Apache
-   -  MySQL
+> La carpeta **debe** llamarse `unideportes-system`. Las rutas internas están construidas
+> sobre `/unideportes-system/public`, así que si la renombras, la aplicación no encuentra
+> los archivos.
 
-### Paso 3: Crear Base de Datos
-1. Abre tu navegador: `http://localhost/phpmyadmin/`
-2. Crea nueva base de datos: `unideportes`
-3. Importa el archivo: `db/unideportes_bd_actual.sql`
+**2. Crear la base de datos e importar el esquema**
 
-### Paso 4: Configurar Conexión
-Verifica que `config/connection.php` tenga:
-```php
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db = "unideportes_pruebas";
+En phpMyAdmin (`http://localhost/phpmyadmin`):
+
+1. Crear una base de datos llamada `unideportes`
+2. Importar `database/unideportes_db.sql`
+
+**3. Revisar la conexión**
+
+`config/connection.php` viene configurado para el entorno por defecto de XAMPP
+(`127.0.0.1`, usuario `root`, sin contraseña). Ajusta esos valores si tu MySQL es distinto.
+
+**4. Abrir la aplicación**
+
+```
+http://localhost/unideportes-system/public/index.php
 ```
 
-### Paso 5: Usuario Administrador
-Ejecuta en phpMyAdmin:
-```sql
-INSERT INTO usuarios (username, password, role, name, lastname, email)
-VALUES ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'Admin', 'Sistema', 'admin@unideportes.com');
-```
+**5. (Opcional) Módulo React**
 
-**Credenciales por defecto:**
-- Usuario: `admin`
-- Contraseña: `admin123`
-
-##  Configuración
-
-### Variables de Entorno
-Edita `config/connection.php` según tu configuración:
-
-```php
-<?php
-function connection(): mysqli {
-    $host = "localhost";      // Tu servidor MySQL
-    $user = "root";           // Usuario de BD
-    $pass = "";               // Contraseña de BD
-    $db = "unideportes";      // Nombre de la BD
-
-    $conn = new mysqli($host, $user, $pass, $db);
-    // ... resto del código
-}
-?>
-```
-
-### Permisos de Archivos
-Asegúrate de que la carpeta del proyecto tenga permisos de escritura:
 ```bash
-chmod -R 755 /opt/lampp/htdocs/crudunideportes
+cd frontend
+npm install
+npm run dev
 ```
 
-## 📁 Estructura del Proyecto
+## Estructura del proyecto
 
-```crudunideportes/
-├── 📁 config/
-│   └── connection.php          # Configuración de BD
-├── 📁 controllers/
-│   ├── auth.php               # Autenticación principal
-│   ├── login.php              # Login alternativo
-│   ├── edit_user.php          # Actualizar usuarios
-│   └── delete_user.php        # Eliminar usuarios
-├── 📁 db/
-│   ├── conexion.php           # Conexión legacy
-│   └── unideportes_bd_actual.sql # Esquema de BD
-├── 📁 models/
-│   ├── insert_user.php        # Crear usuarios
-│   └── update.php             # Formulario de edición
-├── 📁 public/
-│   ├── index.php              # Página principal/login
-│   └── actualizar_passwords.php # Script de actualización
-├── 📁 views/
-│   ├── admin_user.php         # Gestión de usuarios
-│   ├── panel_admin.php        # Dashboard admin
-│   ├── panel_vendedor.php     # Dashboard vendedor
-│   ├── header.php             # Cabecera común
-│   └── footer.php             # Pie de página
-├── 📁 assets/
-│   └── CSS/
-│       └── style.css          # Estilos principales
-├── test.php                   # Suite de testing
-└── README.md                  # Esta documentación
+```
+unideportes-system/
+├── .github/workflows/       PHP lint en cada push
+├── config/                  Conexión PDO, bootstrap y migraciones
+├── controllers/             Lógica de cada acción (ventas, pedidos, clientes, auth)
+├── models/                  Clases de acceso a datos por entidad
+├── views/                   Paneles y pantallas
+│   └── partials/            Componentes reutilizables (KPIs, listados)
+├── public/                  Punto de entrada y JavaScript del cliente
+│   ├── index.php            Login
+│   └── js/                  Ventas, pedidos, venta mayorista, confección
+├── frontend/                Módulo React + Vite
+├── database/                Esquema y datos de ejemplo (.sql)
+├── cypress/                 Pruebas end-to-end
+└── tests/node/              Pruebas de endpoints
 ```
 
-##  Base de Datos
+## Pruebas
 
-### Tabla: `usuarios`
+**End-to-end con Cypress**
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `id` | INT AUTO_INCREMENT | ID único del usuario |
-| `name` | VARCHAR(50) | Nombre del usuario |
-| `lastname` | VARCHAR(50) | Apellido del usuario |
-| `username` | VARCHAR(50) UNIQUE | Nombre de usuario único |
-| `password` | VARCHAR(255) | Contraseña hasheada |
-| `email` | VARCHAR(100) | Correo electrónico |
-| `role` | ENUM('admin','colaborador') | Rol del usuario |
-
-### Tabla: `productos`
-
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `id` | INT AUTO_INCREMENT | ID único del producto |
-| `nombre` | VARCHAR(100) | Nombre del producto |
-| `referencia` | VARCHAR(50) UNIQUE | Referencia única |
-| `talla` | VARCHAR(10) | Talla del producto |
-| `stock` | INT | Cantidad en inventario |
-| `precio` | DECIMAL(10,2) | Precio del producto |
-| `created_at` | TIMESTAMP | Fecha de creación |
-
-##  Funcionalidades CRUD
-
-###  Gestión de Usuarios
-
-#### **CREATE** - Crear Usuario
-- **Archivo:** `models/insert_user.php`
-- **Función:** Agregar nuevos usuarios al sistema
-- **Campos:** nombre, apellido, usuario, email, contraseña, rol
-- **Validaciones:**
-  - Email válido
-  - Usuario único
-  - Contraseña hasheada
-
-#### **READ** - Leer Usuarios
-- **Archivo:** `views/admin_user.php`
-- **Función:** Mostrar lista completa de usuarios
-- **Características:**
-  - Tabla responsive
-  - Información completa
-  - Contador de usuarios
-
-#### **UPDATE** - Actualizar Usuario
-- **Archivos:**
-  - `models/update.php` (formulario)
-  - `controllers/edit_user.php` (procesamiento)
-- **Función:** Modificar datos de usuarios existentes
-- **Campos editables:** nombre, apellido, usuario, email, contraseña
-
-#### **DELETE** - Eliminar Usuario
-- **Archivo:** `controllers/delete_user.php`
-- **Función:** Remover usuarios del sistema
-- **Características:**
-  - Confirmación de eliminación
-  - Redirección automática
-
-###  Sistema de Autenticación
-
-#### Login Seguro
-- **Archivo:** `controllers/auth.php`
-- **Características:**
-  - Verificación de contraseñas hasheadas
-  - Sesiones seguras
-  - Redirección por roles
-  - Protección CSRF básica
-
-#### Roles y Permisos
-- **Admin:** Acceso completo a gestión de usuarios
-- **Colaborador:** Acceso limitado
-- **Vendedor:** Acceso básico
-
-##  Uso del Sistema
-
-### Acceder al Sistema
-1. Abre: `http://localhost/crudunideportes/public/`
-2. Ingresa credenciales:
-   - Usuario: `admin`
-   - Contraseña: `admin123`
-
-### Panel Administrativo
-- **Gestión de Personal:** Crear, editar, eliminar usuarios
-- **Control de Inventario:** Gestionar productos
-- **Reportes:** Ver estadísticas de ventas
-- **Base de Clientes:** Administrar información de clientes
-
-### Crear Nuevo Usuario
-1. Ve a "Gestionar Personal"
-2. Completa el formulario:
-   - Nombre y apellido
-   - Usuario único
-   - Email válido
-   - Contraseña segura
-   - Rol apropiado
-3. Haz clic en "Guardar Usuario"
-
-### Editar Usuario Existente
-1. En la tabla de usuarios, haz clic en ✏️
-2. Modifica los campos necesarios
-3. Haz clic en "ACTUALIZAR DATOS"
-
-### Eliminar Usuario
-1. En la tabla de usuarios, haz clic en 🗑️
-2. Confirma la eliminación
-
-##  Testing
-
-### Ejecutar Suite de Pruebas
-Ve a: `http://localhost/crudunideportes/test.php`
-
-### Pruebas Incluidas
--  **Configuración del servidor**
--  **Archivos del sistema**
--  **Conexión a base de datos**
--  **Estructura de tablas**
--  **Operaciones CRUD reales**
--  **Sistema de autenticación**
-
-### Pruebas CRUD Automáticas
-El test crea, lee, actualiza y elimina un usuario de prueba automáticamente.
-
-## 🌐 API Endpoints
-
-### Autenticación
-```
-POST /crudunideportes/controllers/auth.php
-- username: string
-- password: string
+```bash
+npx cypress open
 ```
 
-### Gestión de Usuarios
-```
-POST /crudunideportes/models/insert_user.php     # Crear
-GET  /crudunideportes/views/admin_user.php       # Leer
-POST /crudunideportes/controllers/edit_user.php  # Actualizar
-GET  /crudunideportes/controllers/delete_user.php?id={id}  # Eliminar
-```
+Casos incluidos: login exitoso, login fallido, gestión de clientes, venta directa y venta
+mayorista.
 
-### Paneles
-```
-GET /crudunideportes/views/panel_admin.php       # Admin
-GET /crudunideportes/views/panel_vendedor.php    # Vendedor
+**Endpoints**
+
+```bash
+node tests/node/test-endpoints.js
 ```
 
-##  Seguridad
+**Integración continua**
 
-### Medidas Implementadas
-- **Contraseñas hasheadas** con `password_hash()`
-- **Sentencias preparadas** contra SQL Injection
-- **Validación de entrada** de datos
-- **Sesiones seguras** con regeneración de ID
-- **Protección XSS** básica
-- **Control de acceso** por roles
+Cada push ejecuta `php-lint` sobre todo el código PHP. El estado se ve en la pestaña
+**Actions**.
 
-### Mejores Prácticas
-- Nunca almacenar contraseñas en texto plano
-- Usar HTTPS en producción
-- Implementar rate limiting
-- Logs de seguridad
-- Actualizaciones regulares
+## Estado de seguridad
 
-##  Contribución
+Lo que está implementado y lo que falta, sin adornos:
 
-### Cómo Contribuir
-1. **Fork** el proyecto
-2. Crea una **branch** para tu feature: `git checkout -b feature/nueva-funcionalidad`
-3. **Commit** tus cambios: `git commit -m 'Agrega nueva funcionalidad'`
-4. **Push** a la branch: `git push origin feature/nueva-funcionalidad`
-5. Abre un **Pull Request**
+| Medida | Estado |
+|---|---|
+| Contraseñas con `password_hash` / `password_verify` | ✅ Implementado |
+| Consultas con PDO y sentencias preparadas | ✅ Implementado en autenticación |
+| Migración de contraseñas en texto plano a hash | ✅ Implementado |
+| Tokens CSRF en formularios | ⚠️ Pendiente |
+| Regeneración del ID de sesión tras el login | ⚠️ Pendiente |
+| Credenciales en variables de entorno | ⚠️ Pendiente (hoy van en `config/connection.php`) |
+| HTTPS en producción | ⚠️ No aplica (el proyecto no se desplegó) |
 
-### Estándares de Código
-- Usar **sentencias preparadas** siempre
-- **Validar** toda entrada de usuario
-- **Comentar** código complejo
-- Seguir **convenciones de nombres** PHP
-- **Testing** antes de commits
+Esta sección existe porque un sistema académico que reconoce sus límites es más confiable
+que uno que declara ser perfecto.
 
-### Reportar Bugs
-1. Verifica que el bug no esté reportado
-2. Abre un **issue** con:
-   - Descripción clara
-   - Pasos para reproducir
-   - Comportamiento esperado vs actual
-   - Información del entorno
+## Datos de ejemplo
 
-<<<<<<< HEAD
-## 📄 Licencia
+El volcado `database/unideportes_db.sql` contiene el esquema completo y datos **ficticios**
+para probar el sistema. No incluye información de clientes reales.
 
-Este proyecto está bajo la **Licencia MIT**. Ver archivo `LICENSE` para más detalles.
+## Contexto del proyecto
 
----
+Trabajo de formación del programa **Análisis y Desarrollo de Software** del SENA, realizado
+en equipo. El objetivo era diseñar y construir un sistema completo con base de datos, autenticación 
+y reportes, aplicando arquitectura por capas.
 
-##  Soporte
-
-¿Necesitas ayuda?
--  Email: soporte@unideportes.com
--  WhatsApp: +57 XXX XXX XXXX
--  Issues: [GitHub Issues](https://github.com/tu-usuario/unideportes-system/issues)
-
----
-
-##  Próximos Pasos
-
-- [ ] Implementar API REST completa
-- [ ] Agregar sistema de logs
-- [ ] Dashboard con gráficos
-- [ ] Notificaciones por email
-- [ ] Backup automático de BD
-- [ ] Tests unitarios avanzados
-- [ ] Documentación API
-- [ ] Dockerización del proyecto
-
-=======
->>>>>>> 3806880fbde5e432111cd562506380934b93d46f
----
-
-**Desarrollado para Unideportes**
+El proyecto **no fue desplegado**: se validó en entorno local con datos de prueba.
